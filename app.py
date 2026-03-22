@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 from groq import Groq
 
 # ── Load API key ───────────────────────────────────────────────────────────────
-from pathlib import Path
-load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 if not GROQ_API_KEY:
     try:
@@ -40,8 +39,10 @@ st.markdown("""
     align-items: center; justify-content: center;
     animation: boot-fade 0.5s ease 2.8s forwards;
     pointer-events: none;
+    min-height: 100vh;
+    width: 100%;
 }
-@keyframes boot-fade { to { opacity: 0; visibility: hidden; } }
+@keyframes boot-fade { to { opacity: 0; visibility: hidden; pointer-events: none; } }
 #boot-text {
     font-family: 'Share Tech Mono', monospace;
     color: #00ff88; font-size: clamp(0.68rem, 3vw, 0.92rem);
@@ -72,7 +73,7 @@ st.markdown("""
 /* ── Matrix rain canvas ──────────────────────────────────────────────────── */
 #matrix-canvas {
     position: fixed; top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    width: 100%; height: 100%;
     z-index: -1; opacity: 0.07;
     pointer-events: none;
 }
@@ -540,7 +541,7 @@ hr {
 }
 </style>
 
-<!-- Boot screen -->
+<!-- Boot screen (inline, no fixed positioning) -->
 <div id="boot-screen">
   <div id="boot-text">
     <div class="boot-line">&gt; EXCUSE.EXE v2.0 initializing...</div>
@@ -557,127 +558,148 @@ hr {
 <!-- Matrix Rain Canvas -->
 <canvas id="matrix-canvas"></canvas>
 
-<!-- Floating Particles -->
-<div class="particles" id="particles"></div>
+<!-- Floating Particles (inline, CSS animation only - no JS needed) -->
+<div class="particles" id="particles">
+  <div class="particle" style="left:5vw;width:3px;height:3px;background:#00ff88;animation-duration:11s;animation-delay:-2s"></div>
+  <div class="particle" style="left:12vw;width:2px;height:2px;background:#60d8ff;animation-duration:14s;animation-delay:-5s"></div>
+  <div class="particle" style="left:20vw;width:4px;height:4px;background:#bf7fff;animation-duration:9s;animation-delay:-1s"></div>
+  <div class="particle" style="left:28vw;width:2px;height:2px;background:#00ff88;animation-duration:13s;animation-delay:-8s"></div>
+  <div class="particle" style="left:35vw;width:3px;height:3px;background:#ff7090;animation-duration:10s;animation-delay:-3s"></div>
+  <div class="particle" style="left:42vw;width:2px;height:2px;background:#ffe660;animation-duration:16s;animation-delay:-6s"></div>
+  <div class="particle" style="left:50vw;width:4px;height:4px;background:#00ff88;animation-duration:8s;animation-delay:-9s"></div>
+  <div class="particle" style="left:58vw;width:2px;height:2px;background:#60d8ff;animation-duration:12s;animation-delay:-4s"></div>
+  <div class="particle" style="left:65vw;width:3px;height:3px;background:#bf7fff;animation-duration:15s;animation-delay:-7s"></div>
+  <div class="particle" style="left:72vw;width:2px;height:2px;background:#ff7090;animation-duration:10s;animation-delay:-2s"></div>
+  <div class="particle" style="left:80vw;width:4px;height:4px;background:#00ff88;animation-duration:13s;animation-delay:-11s"></div>
+  <div class="particle" style="left:88vw;width:2px;height:2px;background:#ffe660;animation-duration:9s;animation-delay:-5s"></div>
+  <div class="particle" style="left:95vw;width:3px;height:3px;background:#60d8ff;animation-duration:14s;animation-delay:-3s"></div>
+  <div class="particle" style="left:8vw;width:2px;height:2px;background:#ff7090;animation-duration:11s;animation-delay:-13s"></div>
+  <div class="particle" style="left:55vw;width:3px;height:3px;background:#bf7fff;animation-duration:17s;animation-delay:-8s"></div>
+</div>
 
 <script>
+try {
 // ── Matrix Rain ───────────────────────────────────────────────────────────────
 (function(){
-    const c = document.getElementById('matrix-canvas');
-    if (!c) return;
-    const ctx = c.getContext('2d');
-    c.width  = window.innerWidth;
-    c.height = window.innerHeight;
-    const cols = Math.floor(c.width / 20);
-    const drops = Array(cols).fill(1);
-    const chars = '01アイウエオカキクケコABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]<>/\\|';
-    function draw(){
-        ctx.fillStyle = 'rgba(10,10,15,0.05)';
-        ctx.fillRect(0,0,c.width,c.height);
-        ctx.fillStyle = '#00ff88';
-        ctx.font = '14px monospace';
-        drops.forEach((y,i)=>{
-            const ch = chars[Math.floor(Math.random()*chars.length)];
-            ctx.fillText(ch, i*20, y*20);
-            if(y*20 > c.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-        });
-    }
-    setInterval(draw, 60);
-    window.addEventListener('resize',()=>{ c.width=window.innerWidth; c.height=window.innerHeight; });
-})();
-
-// ── Floating Particles ────────────────────────────────────────────────────────
-(function(){
-    const container = document.getElementById('particles');
-    if (!container) return;
-    const colors = ['#00ff88','#60d8ff','#bf7fff','#ff7090','#ffe660'];
-    for(let i=0;i<30;i++){
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.cssText = `
-            left: ${Math.random()*100}vw;
-            width:  ${Math.random()*4+1}px;
-            height: ${Math.random()*4+1}px;
-            background: ${colors[Math.floor(Math.random()*colors.length)]};
-            animation-duration:  ${Math.random()*12+8}s;
-            animation-delay:    -${Math.random()*15}s;
-        `;
-        container.appendChild(p);
-    }
-})();
-
-// ── Cursor Trail ──────────────────────────────────────────────────────────────
-(function(){
-    const TRAIL = 10;
-    const dots = [];
-    for(let i=0;i<TRAIL;i++){
-        const d = document.createElement('div');
-        d.className = 'cursor-dot';
-        const sz = Math.max(2, 7 - i*0.5);
-        d.style.cssText = `width:${sz}px;height:${sz}px;opacity:${(1-i/TRAIL)*0.75};`;
-        document.body.appendChild(d);
-        dots.push(d);
-    }
-    let positions = Array(TRAIL).fill({x:-200,y:-200});
-    let mx = -200, my = -200;
-    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
-    (function loop(){
-        positions = [{x:mx,y:my}, ...positions.slice(0,TRAIL-1)];
-        dots.forEach((d,i) => {
-            d.style.left = positions[i].x + 'px';
-            d.style.top  = positions[i].y + 'px';
-        });
-        requestAnimationFrame(loop);
-    })();
-})();
-
-// ── Typing effect on new excuse cards ────────────────────────────────────────
-(function(){
-    function applyTyping(){
-        document.querySelectorAll('.excuse-box').forEach(box => {
-            if(box.dataset.typed) return;
-            box.dataset.typed = '1';
-            const textNodes = [];
-            box.childNodes.forEach(n => {
-                if(n.nodeType === 3 && n.textContent.trim().length > 10) textNodes.push(n);
+    try {
+        const c = document.getElementById('matrix-canvas');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        // use scrollWidth/scrollHeight instead of window for iframe compat
+        const W = document.documentElement.scrollWidth || 800;
+        const H = document.documentElement.scrollHeight || 600;
+        c.width = W; c.height = H;
+        const cols = Math.floor(W / 20);
+        const drops = Array(cols).fill(1);
+        const chars = '01アイウエオABCDEFGHIJKLMNOPQRSTUVWXYZ{}[]<>/|';
+        function draw(){
+            ctx.fillStyle = 'rgba(10,10,15,0.05)';
+            ctx.fillRect(0,0,W,H);
+            ctx.fillStyle = '#00ff88';
+            ctx.font = '14px monospace';
+            drops.forEach((y,i)=>{
+                const ch = chars[Math.floor(Math.random()*chars.length)];
+                ctx.fillText(ch, i*20, y*20);
+                if(y*20 > H && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
             });
-            if(!textNodes.length) return;
-            const node = textNodes[textNodes.length-1];
-            const full = node.textContent;
-            node.textContent = '';
-            let i = 0;
-            const iv = setInterval(()=>{
-                node.textContent += full[i++];
-                if(i >= full.length) clearInterval(iv);
-            }, 16);
-        });
-    }
-    new MutationObserver(applyTyping).observe(document.body, {childList:true, subtree:true});
-    setTimeout(applyTyping, 600);
+        }
+        setInterval(draw, 60);
+    } catch(e) {}
+})();
+
+// ── Cursor Trail (appended to shadowRoot-safe parent) ─────────────────────────
+(function(){
+    try {
+        const TRAIL = 8;
+        const dots = [];
+        const parent = document.body || document.documentElement;
+        for(let i=0;i<TRAIL;i++){
+            const d = document.createElement('div');
+            const sz = Math.max(2, 6 - i*0.5);
+            d.style.cssText = `
+                position:fixed;border-radius:50%;pointer-events:none;z-index:9998;
+                width:${sz}px;height:${sz}px;
+                background:#00ff88;box-shadow:0 0 6px #00ff88;
+                transform:translate(-50%,-50%);
+                opacity:${(1-i/TRAIL)*0.7};
+                transition:opacity 0.3s;
+            `;
+            parent.appendChild(d);
+            dots.push(d);
+        }
+        let positions = Array(TRAIL).fill({x:-200,y:-200});
+        let mx=-200,my=-200;
+        document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;},{passive:true});
+        (function loop(){
+            try {
+                positions=[{x:mx,y:my},...positions.slice(0,TRAIL-1)];
+                dots.forEach((d,i)=>{
+                    d.style.left=positions[i].x+'px';
+                    d.style.top=positions[i].y+'px';
+                });
+            } catch(e){}
+            requestAnimationFrame(loop);
+        })();
+    } catch(e) {}
+})();
+
+// ── Typing effect on excuse cards ─────────────────────────────────────────────
+(function(){
+    try {
+        function applyTyping(){
+            try {
+                document.querySelectorAll('.excuse-box').forEach(box=>{
+                    if(box.dataset.typed) return;
+                    box.dataset.typed='1';
+                    const nodes=[];
+                    box.childNodes.forEach(n=>{
+                        if(n.nodeType===3&&n.textContent.trim().length>10) nodes.push(n);
+                    });
+                    if(!nodes.length) return;
+                    const node=nodes[nodes.length-1];
+                    const full=node.textContent;
+                    node.textContent='';
+                    let i=0;
+                    const iv=setInterval(()=>{
+                        node.textContent+=full[i++];
+                        if(i>=full.length) clearInterval(iv);
+                    },16);
+                });
+            } catch(e){}
+        }
+        new MutationObserver(applyTyping).observe(document.body,{childList:true,subtree:true});
+        setTimeout(applyTyping,600);
+    } catch(e){}
 })();
 
 // ── Metric count-up ───────────────────────────────────────────────────────────
 (function(){
-    function animateMetrics(){
-        document.querySelectorAll('[data-testid="stMetricValue"]').forEach(el => {
-            if(el.dataset.counted) return;
-            const target = parseInt(el.textContent.replace(/\D/g,''));
-            if(isNaN(target) || target === 0) return;
-            el.dataset.counted = '1';
-            const suffix = el.textContent.replace(/[\d]/g,'');
-            let cur = 0;
-            const step = Math.max(1, Math.floor(target/30));
-            const iv = setInterval(()=>{
-                cur = Math.min(cur+step, target);
-                el.textContent = cur + suffix;
-                if(cur >= target) clearInterval(iv);
-            }, 35);
-        });
-    }
-    new MutationObserver(animateMetrics).observe(document.body, {childList:true, subtree:true});
-    setTimeout(animateMetrics, 900);
+    try {
+        function animateMetrics(){
+            try {
+                document.querySelectorAll('[data-testid="stMetricValue"]').forEach(el=>{
+                    if(el.dataset.counted) return;
+                    const target=parseInt(el.textContent.replace(/\D/g,''));
+                    if(isNaN(target)||target===0) return;
+                    el.dataset.counted='1';
+                    const suffix=el.textContent.replace(/[\d]/g,'');
+                    let cur=0;
+                    const step=Math.max(1,Math.floor(target/30));
+                    const iv=setInterval(()=>{
+                        cur=Math.min(cur+step,target);
+                        el.textContent=cur+suffix;
+                        if(cur>=target) clearInterval(iv);
+                    },35);
+                });
+            } catch(e){}
+        }
+        new MutationObserver(animateMetrics).observe(document.body,{childList:true,subtree:true});
+        setTimeout(animateMetrics,900);
+    } catch(e){}
 })();
+
+} catch(e){} // outer safety catch
 </script>
 """, unsafe_allow_html=True)
 
