@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from groq import Groq
 
 # ── Load API key ───────────────────────────────────────────────────────────────
-load_dotenv()
+from pathlib import Path
+load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 if not GROQ_API_KEY:
     try:
@@ -31,7 +32,44 @@ st.markdown("""
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding: 1rem 1rem 4rem 1rem !important; max-width: 100% !important; }
 
-/* ── Matrix rain canvas (behind everything) ──────────────────────────────── */
+/* ── Boot screen overlay ─────────────────────────────────────────────────── */
+#boot-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #0a0a0f;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    animation: boot-fade 0.5s ease 2.8s forwards;
+    pointer-events: none;
+}
+@keyframes boot-fade { to { opacity: 0; visibility: hidden; } }
+#boot-text {
+    font-family: 'Share Tech Mono', monospace;
+    color: #00ff88; font-size: clamp(0.68rem, 3vw, 0.92rem);
+    text-align: left; width: clamp(260px, 80vw, 480px);
+    line-height: 2.2;
+}
+#boot-bar-wrap {
+    width: clamp(260px, 80vw, 480px);
+    background: #1a1a2e; height: 4px; border-radius: 2px;
+    margin-top: 18px; overflow: hidden;
+}
+#boot-bar {
+    height: 100%; width: 0; background: #00ff88; border-radius: 2px;
+    animation: bar-fill 2.4s ease 0.2s forwards;
+    box-shadow: 0 0 12px #00ff88;
+}
+@keyframes bar-fill { to { width: 100%; } }
+.boot-line { opacity: 0; animation: line-appear 0.1s ease forwards; }
+.boot-line:nth-child(1) { animation-delay: 0.1s; }
+.boot-line:nth-child(2) { animation-delay: 0.45s; }
+.boot-line:nth-child(3) { animation-delay: 0.8s; }
+.boot-line:nth-child(4) { animation-delay: 1.1s; }
+.boot-line:nth-child(5) { animation-delay: 1.4s; }
+.boot-line:nth-child(6) { animation-delay: 1.75s; }
+.boot-line:nth-child(7) { animation-delay: 2.1s; }
+@keyframes line-appear { to { opacity: 1; } }
+
+/* ── Matrix rain canvas ──────────────────────────────────────────────────── */
 #matrix-canvas {
     position: fixed; top: 0; left: 0;
     width: 100vw; height: 100vh;
@@ -39,17 +77,72 @@ st.markdown("""
     pointer-events: none;
 }
 
+/* ── Cursor trail ────────────────────────────────────────────────────────── */
+.cursor-dot {
+    position: fixed; border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    background: #00ff88;
+    box-shadow: 0 0 6px #00ff88;
+    transition: opacity 0.3s;
+}
+
+/* ── Hero header wrapper ──────────────────────────────────────────────────── */
+.hero-wrap {
+    position: relative;
+    text-align: center;
+    padding: 2.8rem 1rem 2rem;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+/* animated horizontal scan bar behind title */
+.hero-wrap::before {
+    content: '';
+    position: absolute; left: -10%; right: -10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ff88, #00ffff, #00ff88, transparent);
+    animation: hero-scan 3s ease-in-out infinite;
+    opacity: 0.5;
+}
+@keyframes hero-scan {
+    0%   { top: 0%;   opacity: 0; }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.4; }
+    100% { top: 100%; opacity: 0; }
+}
+/* corner brackets decoration */
+.hero-corner {
+    position: absolute;
+    width: 28px; height: 28px;
+    border-color: rgba(0,255,136,0.45);
+    border-style: solid;
+    animation: corner-pulse 3s ease-in-out infinite;
+}
+.hero-corner.tl { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+.hero-corner.tr { top: 14px; right: 14px; border-width: 2px 2px 0 0; }
+.hero-corner.bl { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; }
+.hero-corner.br { bottom: 14px; right: 14px; border-width: 0 2px 2px 0; }
+@keyframes corner-pulse {
+    0%,100% { border-color: rgba(0,255,136,0.3); }
+    50%      { border-color: rgba(0,255,136,0.9); box-shadow: 0 0 12px rgba(0,255,136,0.4); }
+}
+
 /* ── Glitch title ─────────────────────────────────────────────────────────── */
 .big-title {
     font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(1.8rem, 8vw, 3.2rem);
+    font-size: clamp(2.8rem, 12vw, 6rem);
     font-weight: 900;
     color: #00ff88;
     text-align: center;
-    letter-spacing: clamp(2px, 2vw, 6px);
+    letter-spacing: clamp(4px, 3vw, 16px);
     position: relative;
-    animation: glitch-anim 3s infinite;
-    text-shadow: 0 0 20px rgba(0,255,136,0.6), 0 0 60px rgba(0,255,136,0.2);
+    display: inline-block;
+    animation: glitch-anim 3s infinite, neon-flicker 8s ease-in-out infinite, title-float 6s ease-in-out infinite;
+    text-shadow:
+        0 0 10px rgba(0,255,136,1),
+        0 0 30px rgba(0,255,136,0.7),
+        0 0 80px rgba(0,255,136,0.3),
+        0 0 160px rgba(0,255,136,0.1);
 }
 .big-title::before, .big-title::after {
     content: attr(data-text);
@@ -60,49 +153,128 @@ st.markdown("""
     color: #ff00ff;
     animation: glitch-before 3s infinite;
     clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
-    opacity: 0.7;
+    opacity: 0.75;
+    text-shadow: 0 0 20px #ff00ff;
 }
 .big-title::after {
     color: #00ffff;
     animation: glitch-after 3s infinite;
-    clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%);
-    opacity: 0.7;
+    clip-path: polygon(0 60%, 100% 60%, 100% 78%, 0 78%);
+    opacity: 0.75;
+    text-shadow: 0 0 20px #00ffff;
+}
+/* NEW: subtle float */
+@keyframes title-float {
+    0%,100% { transform: translateY(0px); }
+    50%      { transform: translateY(-6px); }
 }
 @keyframes glitch-anim {
-    0%,90%,100% { transform: none; text-shadow: 0 0 20px rgba(0,255,136,0.6); }
-    91%  { transform: skewX(-3deg) translateX(2px); }
-    92%  { transform: skewX(3deg)  translateX(-2px); }
+    0%,88%,100% { transform: translateY(0px); }
+    89%  { transform: skewX(-4deg) translateX(3px) translateY(0); }
+    90%  { transform: skewX(4deg)  translateX(-3px) translateY(0); }
+    91%  { transform: none; }
+    92%  { transform: skewX(-2deg) translateX(5px) translateY(0); }
     93%  { transform: none; }
 }
+/* NEW: neon flicker */
+@keyframes neon-flicker {
+    0%,19%,21%,23%,25%,54%,56%,100% {
+        text-shadow: 0 0 10px rgba(0,255,136,1), 0 0 30px rgba(0,255,136,0.7), 0 0 80px rgba(0,255,136,0.3);
+        opacity: 1;
+    }
+    20%,24%,55% {
+        text-shadow: none;
+        opacity: 0.4;
+    }
+}
 @keyframes glitch-before {
-    0%,90%,100% { transform: none; opacity: 0; }
-    91% { transform: translateX(-4px); opacity: 0.7; }
-    92% { transform: translateX(4px);  opacity: 0.7; }
+    0%,88%,100% { transform: none; opacity: 0; }
+    89% { transform: translateX(-6px) skewX(-2deg); opacity: 0.8; }
+    90% { transform: translateX(6px);  opacity: 0.8; }
+    91% { opacity: 0; }
+    92% { transform: translateX(-3px); opacity: 0.6; }
     93% { opacity: 0; }
 }
 @keyframes glitch-after {
-    0%,90%,100% { transform: none; opacity: 0; }
-    91% { transform: translateX(4px);  opacity: 0.7; }
-    92% { transform: translateX(-4px); opacity: 0.7; }
+    0%,88%,100% { transform: none; opacity: 0; }
+    89% { transform: translateX(6px) skewX(2deg);  opacity: 0.8; }
+    90% { transform: translateX(-6px); opacity: 0.8; }
+    91% { opacity: 0; }
+    92% { transform: translateX(3px);  opacity: 0.6; }
     93% { opacity: 0; }
+}
+
+/* ── Version badge beside title ───────────────────────────────────────────── */
+.hero-version {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(0.55rem, 2vw, 0.7rem);
+    color: #00ff88;
+    border: 1px solid rgba(0,255,136,0.4);
+    background: rgba(0,255,136,0.07);
+    padding: 2px 10px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    display: inline-block;
+    margin-bottom: 10px;
+    animation: fadeup 1s ease 0.3s both;
+}
+/* ── Tag row under title ──────────────────────────────────────────────────── */
+.hero-tags {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    margin-top: 14px;
+    animation: fadeup 1s ease 1s both;
+}
+.hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(0.55rem, 2vw, 0.65rem);
+    padding: 3px 12px; border-radius: 100px;
+    border: 1px solid rgba(0,255,136,0.25);
+    color: rgba(0,255,136,0.7);
+    background: rgba(0,255,136,0.05);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    animation: hero-tag-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.hero-tag:nth-child(1){animation-delay:1.0s}.hero-tag:nth-child(2){animation-delay:1.15s}
+.hero-tag:nth-child(3){animation-delay:1.3s}.hero-tag:nth-child(4){animation-delay:1.45s}
+@keyframes hero-tag-in {
+    from { opacity:0; transform: scale(0.6) translateY(8px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+}
+@keyframes fadeup {
+    from { opacity:0; transform:translateY(12px); }
+    to   { opacity:1; transform:translateY(0); }
 }
 
 /* ── Subtitle typewriter ──────────────────────────────────────────────────── */
 .subtitle {
     font-family: 'Share Tech Mono', monospace;
     text-align: center;
-    color: #6060a0;
-    font-size: clamp(0.72rem, 3vw, 0.95rem);
-    margin-top: 4px;
+    color: #5a5a9a;
+    font-size: clamp(0.75rem, 3vw, 1rem);
+    margin-top: 10px;
     overflow: hidden;
     white-space: nowrap;
     border-right: 2px solid #00ff88;
     width: fit-content;
     margin-left: auto; margin-right: auto;
-    animation: typewriter 2.5s steps(45,end) forwards, blink-caret 0.75s step-end infinite;
+    animation: typewriter 2.5s steps(45,end) 0.5s both, blink-caret 0.75s step-end infinite;
 }
 @keyframes typewriter   { from { width: 0; } to { width: 100%; } }
 @keyframes blink-caret  { 0%,100%{border-color:#00ff88} 50%{border-color:transparent} }
+
+/* ── Glowing underline below hero ─────────────────────────────────────────── */
+.hero-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00ff88, #00ffff, #00ff88, transparent);
+    margin: 1.4rem 0 0;
+    animation: hero-line-in 1.5s ease 1.5s both;
+    box-shadow: 0 0 12px rgba(0,255,136,0.4);
+}
+@keyframes hero-line-in {
+    from { transform: scaleX(0); opacity:0; }
+    to   { transform: scaleX(1); opacity:1; }
+}
 
 /* ── Floating particles ───────────────────────────────────────────────────── */
 .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
@@ -132,10 +304,13 @@ st.markdown("""
     margin: 14px 0;
     word-break: break-word;
     position: relative;
-    animation: card-enter 0.5s cubic-bezier(0.22,1,0.36,1);
-    box-shadow: 0 0 0 1px rgba(0,255,136,0.15),
-                0 0 30px rgba(0,255,136,0.08),
-                inset 0 0 30px rgba(0,255,136,0.02);
+    overflow: hidden;
+    animation: card-enter 0.5s cubic-bezier(0.22,1,0.36,1), border-breathe 4s ease-in-out 0.5s infinite;
+}
+/* NEW: card border breathe */
+@keyframes border-breathe {
+    0%,100% { box-shadow: 0 0 0 1px rgba(0,255,136,0.15), 0 0 20px rgba(0,255,136,0.06); }
+    50%      { box-shadow: 0 0 0 1px rgba(0,255,136,0.5),  0 0 40px rgba(0,255,136,0.18); }
 }
 .excuse-box::before {
     content: '';
@@ -153,8 +328,6 @@ st.markdown("""
     from { background-position: -200% 0; }
     to   { background-position:  200% 0; }
 }
-
-/* ── Scanline sweep on card ──────────────────────────────────────────────── */
 .excuse-box::after {
     content: '';
     position: absolute; left: 0; right: 0;
@@ -175,15 +348,24 @@ st.markdown("""
     font-family: 'Share Tech Mono', monospace;
     letter-spacing: 1px; font-weight: bold; margin-bottom: 8px;
     white-space: nowrap;
-    animation: tag-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
 }
-@keyframes tag-pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-.tag-DEVELOPER   { background:rgba(0,200,255,0.12); color:#60d8ff; border:1px solid #007aaa; box-shadow: 0 0 10px rgba(0,200,255,0.2); }
-.tag-COSMIC      { background:rgba(138,43,226,0.2);  color:#bf7fff; border:1px solid #7a00cc; box-shadow: 0 0 10px rgba(138,43,226,0.3); }
-.tag-PHYSICAL    { background:rgba(255,100,0,0.15);  color:#ff8040; border:1px solid #cc5200; box-shadow: 0 0 10px rgba(255,100,0,0.2); }
-.tag-BLAMING     { background:rgba(255,60,90,0.15);  color:#ff7090; border:1px solid #aa0020; box-shadow: 0 0 10px rgba(255,60,90,0.2); }
-.tag-EXISTENTIAL { background:rgba(255,230,0,0.10);  color:#ffe660; border:1px solid #998800; box-shadow: 0 0 10px rgba(255,230,0,0.2); }
+.tag-DEVELOPER   { background:rgba(0,200,255,0.12); color:#60d8ff; border:1px solid #007aaa;
+                   animation: tag-pop 0.4s cubic-bezier(0.34,1.56,0.64,1), tag-glow-blue   3s ease-in-out infinite; }
+.tag-COSMIC      { background:rgba(138,43,226,0.2);  color:#bf7fff; border:1px solid #7a00cc;
+                   animation: tag-pop 0.4s cubic-bezier(0.34,1.56,0.64,1), tag-glow-purple 3s ease-in-out infinite; }
+.tag-PHYSICAL    { background:rgba(255,100,0,0.15);  color:#ff8040; border:1px solid #cc5200;
+                   animation: tag-pop 0.4s cubic-bezier(0.34,1.56,0.64,1), tag-glow-orange 3s ease-in-out infinite; }
+.tag-BLAMING     { background:rgba(255,60,90,0.15);  color:#ff7090; border:1px solid #aa0020;
+                   animation: tag-pop 0.4s cubic-bezier(0.34,1.56,0.64,1), tag-glow-red    3s ease-in-out infinite; }
+.tag-EXISTENTIAL { background:rgba(255,230,0,0.10);  color:#ffe660; border:1px solid #998800;
+                   animation: tag-pop 0.4s cubic-bezier(0.34,1.56,0.64,1), tag-glow-yellow 3s ease-in-out infinite; }
+@keyframes tag-pop    { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* NEW: tag colour-specific glows */
+@keyframes tag-glow-blue   { 0%,100%{box-shadow:0 0 6px rgba(0,200,255,0.2)}  50%{box-shadow:0 0 18px rgba(0,200,255,0.7)} }
+@keyframes tag-glow-purple { 0%,100%{box-shadow:0 0 6px rgba(138,43,226,0.3)} 50%{box-shadow:0 0 18px rgba(138,43,226,0.8)} }
+@keyframes tag-glow-orange { 0%,100%{box-shadow:0 0 6px rgba(255,100,0,0.2)}  50%{box-shadow:0 0 18px rgba(255,100,0,0.7)} }
+@keyframes tag-glow-red    { 0%,100%{box-shadow:0 0 6px rgba(255,60,90,0.2)}  50%{box-shadow:0 0 18px rgba(255,60,90,0.7)} }
+@keyframes tag-glow-yellow { 0%,100%{box-shadow:0 0 6px rgba(255,230,0,0.2)}  50%{box-shadow:0 0 18px rgba(255,230,0,0.7)} }
 
 /* ── AI badge ─────────────────────────────────────────────────────────────── */
 .ai-badge {
@@ -197,7 +379,7 @@ st.markdown("""
 }
 @keyframes pulse-badge {
     0%,100% { box-shadow: 0 0 4px rgba(0,255,136,0.4); }
-    50%      { box-shadow: 0 0 12px rgba(0,255,136,0.8); }
+    50%      { box-shadow: 0 0 14px rgba(0,255,136,0.9); }
 }
 
 /* ── Leaderboard item ─────────────────────────────────────────────────────── */
@@ -262,7 +444,6 @@ st.markdown("""
     transform: scale(0.97) !important;
     animation: btn-shake 0.3s ease !important;
 }
-/* Ripple on button */
 .stButton > button::after {
     content: '';
     position: absolute; inset: 0;
@@ -271,11 +452,18 @@ st.markdown("""
     border-radius: 10px;
 }
 .stButton > button:active::after { opacity: 1; }
-
 @keyframes btn-shake {
     0%,100% { transform: translateX(0); }
     25%      { transform: translateX(-4px); }
     75%      { transform: translateX(4px);  }
+}
+/* NEW: primary button idle glow pulse */
+.stButton > button[kind="primary"] {
+    animation: btn-glow-idle 3s ease-in-out infinite;
+}
+@keyframes btn-glow-idle {
+    0%,100% { box-shadow: 0 0 8px rgba(0,255,136,0.2); }
+    50%      { box-shadow: 0 0 28px rgba(0,255,136,0.55), 0 0 52px rgba(0,255,136,0.15); }
 }
 
 /* ── Tabs ─────────────────────────────────────────────────────────────────── */
@@ -292,10 +480,29 @@ st.markdown("""
     font-family: 'Share Tech Mono', monospace !important;
     transition: color 0.2s, border-color 0.2s !important;
 }
+/* NEW: active tab text glow */
+.stTabs [aria-selected="true"] {
+    animation: tab-glow 2s ease-in-out infinite !important;
+}
+@keyframes tab-glow {
+    0%,100% { text-shadow: 0 0 6px rgba(0,255,136,0.4); }
+    50%      { text-shadow: 0 0 18px rgba(0,255,136,0.95), 0 0 32px rgba(0,255,136,0.3); }
+}
 
 /* ── Selectbox & textarea ─────────────────────────────────────────────────── */
 .stSelectbox > div > div { min-height: 44px; font-family: 'Share Tech Mono', monospace; }
 .stTextArea textarea    { font-family: 'Share Tech Mono', monospace; font-size: clamp(0.85rem,3vw,0.95rem) !important; }
+/* NEW: input focus glow */
+.stTextArea textarea:focus {
+    border-color: #00ff88 !important;
+    box-shadow: 0 0 0 2px rgba(0,255,136,0.25), 0 0 20px rgba(0,255,136,0.1) !important;
+    transition: box-shadow 0.3s, border-color 0.3s !important;
+}
+.stTextInput input:focus {
+    border-color: #00ff88 !important;
+    box-shadow: 0 0 0 2px rgba(0,255,136,0.25), 0 0 20px rgba(0,255,136,0.1) !important;
+    transition: box-shadow 0.3s !important;
+}
 
 /* ── Spinner animation ────────────────────────────────────────────────────── */
 .stSpinner > div { border-color: #00ff88 transparent transparent transparent !important; }
@@ -306,9 +513,25 @@ st.markdown("""
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: none; }
 }
+/* NEW: success glow pulse */
+.stSuccess {
+    animation: flash-in 0.4s ease, success-pulse 2s ease-in-out 0.5s infinite !important;
+}
+@keyframes success-pulse {
+    0%,100% { box-shadow: none; }
+    50%      { box-shadow: 0 0 22px rgba(0,255,136,0.25); }
+}
 
 /* ── Divider glow ─────────────────────────────────────────────────────────── */
-hr { border-color: rgba(0,255,136,0.2) !important; box-shadow: 0 0 8px rgba(0,255,136,0.1); }
+hr {
+    border-color: rgba(0,255,136,0.2) !important;
+    box-shadow: 0 0 8px rgba(0,255,136,0.1);
+    animation: divider-expand 1s ease;
+}
+@keyframes divider-expand {
+    from { transform: scaleX(0); opacity: 0; }
+    to   { transform: scaleX(1); opacity: 1; }
+}
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 380px) {
@@ -316,6 +539,20 @@ hr { border-color: rgba(0,255,136,0.2) !important; box-shadow: 0 0 8px rgba(0,25
     div[data-testid="column"] { min-width: 0 !important; }
 }
 </style>
+
+<!-- Boot screen -->
+<div id="boot-screen">
+  <div id="boot-text">
+    <div class="boot-line">&gt; EXCUSE.EXE v2.0 initializing...</div>
+    <div class="boot-line">&gt; Loading excuse database........... <span style="color:#ffe660">OK</span></div>
+    <div class="boot-line">&gt; Connecting to Groq AI............. <span style="color:#ffe660">OK</span></div>
+    <div class="boot-line">&gt; Warming up blame engine........... <span style="color:#ffe660">OK</span></div>
+    <div class="boot-line">&gt; Disabling accountability module... <span style="color:#ff7090">DONE</span></div>
+    <div class="boot-line">&gt; Zero regrets policy enforced...... <span style="color:#00ff88">ACTIVE</span></div>
+    <div class="boot-line">&gt; <span style="color:#00ff88">System ready. Excuses online. 💻</span></div>
+  </div>
+  <div id="boot-bar-wrap"><div id="boot-bar"></div></div>
+</div>
 
 <!-- Matrix Rain Canvas -->
 <canvas id="matrix-canvas"></canvas>
@@ -368,6 +605,78 @@ hr { border-color: rgba(0,255,136,0.2) !important; box-shadow: 0 0 8px rgba(0,25
         `;
         container.appendChild(p);
     }
+})();
+
+// ── Cursor Trail ──────────────────────────────────────────────────────────────
+(function(){
+    const TRAIL = 10;
+    const dots = [];
+    for(let i=0;i<TRAIL;i++){
+        const d = document.createElement('div');
+        d.className = 'cursor-dot';
+        const sz = Math.max(2, 7 - i*0.5);
+        d.style.cssText = `width:${sz}px;height:${sz}px;opacity:${(1-i/TRAIL)*0.75};`;
+        document.body.appendChild(d);
+        dots.push(d);
+    }
+    let positions = Array(TRAIL).fill({x:-200,y:-200});
+    let mx = -200, my = -200;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    (function loop(){
+        positions = [{x:mx,y:my}, ...positions.slice(0,TRAIL-1)];
+        dots.forEach((d,i) => {
+            d.style.left = positions[i].x + 'px';
+            d.style.top  = positions[i].y + 'px';
+        });
+        requestAnimationFrame(loop);
+    })();
+})();
+
+// ── Typing effect on new excuse cards ────────────────────────────────────────
+(function(){
+    function applyTyping(){
+        document.querySelectorAll('.excuse-box').forEach(box => {
+            if(box.dataset.typed) return;
+            box.dataset.typed = '1';
+            const textNodes = [];
+            box.childNodes.forEach(n => {
+                if(n.nodeType === 3 && n.textContent.trim().length > 10) textNodes.push(n);
+            });
+            if(!textNodes.length) return;
+            const node = textNodes[textNodes.length-1];
+            const full = node.textContent;
+            node.textContent = '';
+            let i = 0;
+            const iv = setInterval(()=>{
+                node.textContent += full[i++];
+                if(i >= full.length) clearInterval(iv);
+            }, 16);
+        });
+    }
+    new MutationObserver(applyTyping).observe(document.body, {childList:true, subtree:true});
+    setTimeout(applyTyping, 600);
+})();
+
+// ── Metric count-up ───────────────────────────────────────────────────────────
+(function(){
+    function animateMetrics(){
+        document.querySelectorAll('[data-testid="stMetricValue"]').forEach(el => {
+            if(el.dataset.counted) return;
+            const target = parseInt(el.textContent.replace(/\D/g,''));
+            if(isNaN(target) || target === 0) return;
+            el.dataset.counted = '1';
+            const suffix = el.textContent.replace(/[\d]/g,'');
+            let cur = 0;
+            const step = Math.max(1, Math.floor(target/30));
+            const iv = setInterval(()=>{
+                cur = Math.min(cur+step, target);
+                el.textContent = cur + suffix;
+                if(cur >= target) clearInterval(iv);
+            }, 35);
+        });
+    }
+    new MutationObserver(animateMetrics).observe(document.body, {childList:true, subtree:true});
+    setTimeout(animateMetrics, 900);
 })();
 </script>
 """, unsafe_allow_html=True)
@@ -478,9 +787,26 @@ def card(excuse):
 # ══════════════════════════════════════════════════════════════════════════════
 # UI
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown('<p class="big-title" data-text="💻 EXCUSE.EXE">💻 EXCUSE.EXE</p>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">// when your code breaks and you need a reason fast</p>', unsafe_allow_html=True)
-st.divider()
+st.markdown("""
+<div class="hero-wrap">
+  <div class="hero-corner tl"></div>
+  <div class="hero-corner tr"></div>
+  <div class="hero-corner bl"></div>
+  <div class="hero-corner br"></div>
+  <div class="hero-version">v2.0 &nbsp;&middot;&nbsp; ONLINE</div>
+  <div style="line-height:1">
+    <span class="big-title" data-text="EXCUSE.EXE">EXCUSE.EXE</span>
+  </div>
+  <p class="subtitle">// when your code breaks and you need a reason fast</p>
+  <div class="hero-tags">
+    <span class="hero-tag">&#x26A1; PYTHON</span>
+    <span class="hero-tag">&#x1F916; GROQ AI</span>
+    <span class="hero-tag">&#x1F30A; STREAMLIT</span>
+    <span class="hero-tag">&#x1F602; ZERO ACCOUNTABILITY</span>
+  </div>
+  <div class="hero-line"></div>
+</div>
+""", unsafe_allow_html=True)
 
 # Stats
 c1, c2, c3, c4 = st.columns(4)
