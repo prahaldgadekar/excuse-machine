@@ -1,23 +1,25 @@
 <div align="center">
 
-```
-███████╗██╗  ██╗ ██████╗██╗   ██╗███████╗███████╗   ███████╗██╗  ██╗███████╗
-██╔════╝╚██╗██╔╝██╔════╝██║   ██║██╔════╝██╔════╝   ██╔════╝╚██╗██╔╝██╔════╝
-█████╗   ╚███╔╝ ██║     ██║   ██║███████╗█████╗      █████╗   ╚███╔╝ █████╗  
-██╔══╝   ██╔██╗ ██║     ██║   ██║╚════██║██╔══╝      ██╔══╝   ██╔██╗ ██╔══╝  
-███████╗██╔╝ ██╗╚██████╗╚██████╔╝███████║███████╗    ███████╗██╔╝ ██╗███████╗
-╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝╚══════╝
-```
+<!-- Animated wave header banner -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=00ff88&height=180&section=header&text=EXCUSE.EXE&fontSize=70&fontColor=0a0a0f&fontAlignY=38&desc=Python%20Streamlit%20Edition&descAlignY=60&descColor=0a0a0f&animation=fadeIn" width="100%"/>
 
-# 💻 EXCUSE.EXE — Python Streamlit Edition
+<!-- Animated typewriter subtitle -->
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&size=18&duration=3000&pause=1000&color=00FF88&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=60&lines=A+funny+programmer+excuse+machine+🤖;Built+with+pure+Python+🐍;No+HTML+·+No+CSS+·+No+JavaScript+😎;Zero+Accountability+Guaranteed+😂" alt="Typing SVG"/>
 
-**A funny full-stack programmer excuse machine built with pure Python.**  
-No HTML · No CSS · No JavaScript · No Regrets
+<br/>
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=flat-square&logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
-![Claude API](https://img.shields.io/badge/Claude%20API-Anthropic-D97706?style=flat-square)
-![License](https://img.shields.io/badge/Accountability-Zero-00ff88?style=flat-square)
+<!-- Live demo big button -->
+<a href="https://excuse-machine-s9zrufbo4rlgcy4tzeffah.streamlit.app/">
+  <img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-Try%20It%20Now-FF4B4B?style=for-the-badge" alt="Live Demo"/>
+</a>
+
+<br/><br/>
+
+<!-- Tech badges -->
+<img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white"/>
+<img src="https://img.shields.io/badge/Streamlit-1.x-FF4B4B?style=flat-square&logo=streamlit&logoColor=white"/>
+<img src="https://img.shields.io/badge/Claude_API-Anthropic-D97706?style=flat-square"/>
+<img src="https://img.shields.io/badge/Accountability-Zero%20😂-00C853?style=flat-square"/>
 
 </div>
 
@@ -95,11 +97,12 @@ streamlit run app.py
 
 ## 🔐 API Key Security
 
-- ✅ Key is stored in `.env` — never hardcoded in source
+- ✅ Key stored in `.env` — never hardcoded in source
 - ✅ `.gitignore` prevents `.env` from being pushed to GitHub
 - ✅ `.env.example` is a safe, key-free template to commit
 
-> ⚠️ **Never share your `.env` file or paste your API key in public.** If you accidentally push it, rotate it immediately at [console.anthropic.com](https://console.anthropic.com).
+> ⚠️ **Never share your `.env` file or paste your API key publicly.**  
+> If you accidentally push it, rotate it immediately at [console.anthropic.com](https://console.anthropic.com).
 
 ---
 
@@ -116,14 +119,16 @@ streamlit run app.py
 
 ## 🧑‍💻 Author
 
-Made with ❤️ and **zero accountability** 😂
+**Prahlad Gadekar**
 
-**Prahlad Gadekar**  
 [![GitHub](https://img.shields.io/badge/GitHub-prahaldgadekar-181717?style=flat-square&logo=github)](https://github.com/prahaldgadekar)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-prahladgadekar-0A66C2?style=flat-square&logo=linkedin)](https://linkedin.com/in/prahladgadekar)
 
 ---
 
+<!-- Animated footer wave -->
 <div align="center">
-<sub>Built with Python · Streamlit · Anthropic Claude API · python-dotenv</sub>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=00ff88&height=100&section=footer&animation=fadeIn" width="100%"/>
+  <sub>Built with Python · Streamlit · Anthropic Claude API · python-dotenv</sub><br>
+  <sub>Made with ❤️ and zero accountability 😂</sub>
 </div>
